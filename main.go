@@ -29,10 +29,10 @@ func main() {
 }
 
 func createUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
-	u, err := client.User.Create().Save(ctx)
+	u, err := client.User.Create().SetAge(123).SetName("Billybob").Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating user: %v", err)
 	}
-	log.Printf("user was created id: %#v", u.ID)
+	log.Printf("user was created id: %s", u)
 	return u, nil
 }
