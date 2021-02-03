@@ -10,6 +10,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/segfault88/enttest/ent"
+	"github.com/segfault88/enttest/ent/user"
 )
 
 func main() {
@@ -31,6 +32,18 @@ func main() {
 		if err != nil {
 			log.Fatalf("failed creating user: %v", err)
 		}
+	}
+
+	users, err := client.User.Query().
+		Where(user.And(user.AgeGT(18), user.AgeLT(60))).
+		Order(ent.Asc(user.FieldAge)).
+		All(context.Background())
+	if err != nil {
+		log.Fatalf("failed getting users: %v", err)
+	}
+	log.Printf("Found: %d users", len(users))
+	for _, u := range users {
+		log.Printf("found: %s", u)
 	}
 }
 
