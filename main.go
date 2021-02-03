@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	// createUsers(context.Background(), client)
+	createUsers(context.Background(), client)
 	queryUsers(context.Background(), client)
 }
 
