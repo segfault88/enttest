@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/davecgh/go-spew/spew"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/segfault88/enttest/ent"
 )
@@ -25,16 +24,25 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	u, err := createUser(context.Background(), client)
-	if err != nil {
-		log.Fatalf("failed creating user: %v", err)
+	count := rand.Int() % 100
+	log.Printf("creating: %d users", count)
+	for i := 0; i < count; i++ {
+		_, err := createUser(context.Background(), client)
+		if err != nil {
+			log.Fatalf("failed creating user: %v", err)
+		}
 	}
-
-	spew.Dump(u)
 }
 
 func createUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
-	u, err := client.User.Create().SetAge(rand.Int() % 100).SetName(gofakeit.Name()).Save(ctx)
+	var age int
+	for age <= 0 {
+		age = rand.Int() % 100
+	}
+	u, err := client.User.Create().
+		SetAge(age).
+		SetName(gofakeit.Name()).
+		Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating user: %v", err)
 	}
