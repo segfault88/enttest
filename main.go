@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -25,15 +24,35 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
+	// createUsers(context.Background(), client)
+	queryUsers(context.Background(), client)
+}
+
+func createUsers(ctx context.Context, client *ent.Client) {
 	count := rand.Int() % 100
 	log.Printf("creating: %d users", count)
 	for i := 0; i < count; i++ {
-		_, err := createUser(context.Background(), client)
-		if err != nil {
-			log.Fatalf("failed creating user: %v", err)
-		}
+		createUser(context.Background(), client)
 	}
+}
 
+func createUser(ctx context.Context, client *ent.Client) *ent.User {
+	var age int
+	for age <= 0 {
+		age = rand.Int() % 100
+	}
+	u, err := client.User.Create().
+		SetAge(age).
+		SetName(gofakeit.Name()).
+		Save(ctx)
+	if err != nil {
+		log.Fatalf("failed creating user: %v", err)
+	}
+	log.Printf("user was created id: %s", u)
+	return u
+}
+
+func queryUsers(ctx context.Context, client *ent.Client) {
 	users, err := client.User.Query().
 		Where(user.And(user.AgeGT(18), user.AgeLT(60))).
 		Order(ent.Asc(user.FieldAge)).
@@ -45,20 +64,4 @@ func main() {
 	for _, u := range users {
 		log.Printf("found: %s", u)
 	}
-}
-
-func createUser(ctx context.Context, client *ent.Client) (*ent.User, error) {
-	var age int
-	for age <= 0 {
-		age = rand.Int() % 100
-	}
-	u, err := client.User.Create().
-		SetAge(age).
-		SetName(gofakeit.Name()).
-		Save(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed creating user: %v", err)
-	}
-	log.Printf("user was created id: %s", u)
-	return u, nil
 }
